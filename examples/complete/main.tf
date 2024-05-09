@@ -13,7 +13,7 @@ module "service" {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 3.19.0"
+  version = "~> 5.1.1"
 
   name                 = var.vpc_name
   cidr                 = var.vpc_cidr
@@ -26,7 +26,7 @@ module "vpc" {
 }
 
 module "namespace" {
-  source = "git::https://github.com/nexient-llc/tf-aws-module-private_dns_namespace.git?ref=0.1.0"
+  source = "git::https://github.com/launchbynttdata/tf-aws-module_primitive-private_dns_namespace.git?ref=1.0.0"
 
   vpc_id      = module.vpc.vpc_id
   name        = var.namespace_name
