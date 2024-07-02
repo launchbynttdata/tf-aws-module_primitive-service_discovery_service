@@ -31,7 +31,7 @@ No providers.
 |------|--------|---------|
 | <a name="module_service"></a> [service](#module\_service) | ../.. | n/a |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | ~> 5.1.1 |
-| <a name="module_namespace"></a> [namespace](#module\_namespace) | git::https://github.com/launchbynttdata/tf-aws-module_primitive-private_dns_namespace.git | 1.0.0 |
+| <a name="module_namespace"></a> [namespace](#module\_namespace) | terraform.registry.launch.nttdata.com/module_primitive/private_dns_namespace/aws | ~> 1.0 |
 
 ## Resources
 
