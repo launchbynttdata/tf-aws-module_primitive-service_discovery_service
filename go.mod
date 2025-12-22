@@ -5,6 +5,7 @@ go 1.25.5
 require (
 	github.com/aws/aws-sdk-go-v2 v1.41.0
 	github.com/aws/aws-sdk-go-v2/config v1.32.6
+	github.com/aws/aws-sdk-go-v2/service/servicediscovery v1.39.21
 	github.com/gruntwork-io/terratest v0.54.0
 	github.com/launchbynttdata/lcaf-component-terratest v1.0.4
 	github.com/stretchr/testify v1.11.1
@@ -26,7 +27,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/autoscaling v1.62.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.63.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.53.5 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.278.0 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.279.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.55.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.70.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/iam v1.53.1 // indirect
@@ -133,7 +134,7 @@ require (
 	k8s.io/client-go v0.35.0 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20251125145642-4e65d59e963e // indirect
-	k8s.io/utils v0.0.0-20251220205832-9d40a56c1308 // indirect
+	k8s.io/utils v0.0.0-20251222190033-383b50a9004e // indirect
 	sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.1 // indirect

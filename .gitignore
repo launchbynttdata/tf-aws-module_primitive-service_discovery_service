@@ -55,8 +55,10 @@ terraform.rc
 # Files from common modules
 azure_env.sh
 .releaserc.json
-.tflint.hcl
 
 # VS Code
 .vscode/
 .devcontainer
+
+# go test files
+*.test

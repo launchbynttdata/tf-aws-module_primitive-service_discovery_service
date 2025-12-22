@@ -5,7 +5,23 @@
 
 ## Overview
 
-This module provisions a Service Discovery Service to be referenced by the ECS Service to enable service discovery.
+This module provisions an AWS Cloud Map Service Discovery Service that can be referenced by ECS Services or other applications to enable service discovery. The service uses DNS-based service discovery with configurable health checks.
+
+### Key Features
+
+- DNS-based service discovery using AWS Cloud Map
+- Configurable DNS record types (A, AAAA, SRV, CNAME)
+- Support for MULTIVALUE and WEIGHTED routing policies
+- Custom health check configuration with adjustable failure thresholds
+- Resource tagging support
+- Integration with private DNS namespaces
+
+### Use Cases
+
+- Service discovery for ECS tasks within a VPC
+- Microservices communication in containerized environments
+- Internal service mesh implementations
+- Application discovery without hard-coded endpoints
 
 ## Pre-Commit hooks
 
@@ -42,7 +58,7 @@ In order for `pre-commit` hooks to work properly
 pre-commit install --hook-type commit-msg
 ```
 
-## To test the resource group module locally
+## To test the module locally
 
 1. For development/enhancements to this module locally, you'll need to install all of its components. This is controlled by the `configure` target in the project's [`Makefile`](./Makefile). Before you can run `configure`, familiarize yourself with the variables in the `Makefile` and ensure they're pointing to the right places.
 
@@ -56,7 +72,7 @@ This adds in several files and directories that are ignored by `git`. They expos
 
 `make configure` command will bring down `aws_env.sh` file on local workstation. Developer would need to modify this file, replace the environment variable values with relevant values.
 
-These environment variables are used by `terratest` integration suit.
+These environment variables are used by `terratest` integration suite.
 
 Then run this make target to set the environment variables on developer workstation.
 
@@ -64,9 +80,10 @@ Then run this make target to set the environment variables on developer workstat
 make env
 ```
 
-3. The first target you care about is `check`.
+3. Run the `check` target to validate the module.
 
 **Pre-requisites**
+
 Before running this target it is important to ensure that, developer has created files mentioned below on local workstation under root directory of git repository that contains code for primitives/segments. Note that these files are `aws` specific. If primitive/segment under development uses any other cloud provider than AWS, this section may not be relevant.
 
 - A file named `provider.tf` with contents below
@@ -94,8 +111,50 @@ If `make check` target is successful, developer is good to commit the code to pr
 
 - runs `terraform commands` to `lint`,`validate` and `plan` terraform code.
 - runs `conftests`. `conftests` make sure `policy` checks are successful.
-- runs `terratest`. This is integration test suit.
+- runs `terratest`. This is integration test suite.
 - runs `opa` tests
+
+## Testing
+
+This module uses comprehensive AWS SDK-based testing to validate deployed resources. The test implementation:
+
+- **Direct AWS API Validation**: Uses the AWS SDK for Go v2 (`servicediscovery` client) to query actual deployed resources
+- **State Verification**: Validates that AWS resources exist and have valid configurations
+- **Comprehensive Coverage**: Tests service existence, DNS configuration (record type, TTL, routing policy), health check settings, and tags
+- **No tfvars Parsing**: Tests validate actual AWS state rather than comparing against input variables
+
+### Test Coverage
+
+The test suite validates:
+
+- ✅ Service Discovery Service existence and basic attributes (ID, ARN, name)
+- ✅ DNS configuration (record type validity, TTL positivity, routing policy, single DNS record)
+- ✅ Health check custom configuration (presence confirms feature is enabled)
+- ✅ Resource tagging (tags exist with non-empty keys and values)
+
+**Note**: Some AWS SDK fields like `NamespaceId` in `DnsConfig` and `FailureThreshold` in `HealthCheckCustomConfig` are deprecated in AWS SDK v2. The tests validate the overall configuration correctness rather than individual deprecated fields.
+
+### Running Tests
+
+Tests are located in `/tests/testimpl/` and are executed via the standard test harness:
+
+```bash
+make check
+```
+
+For manual test execution:
+
+```bash
+# Run tests sequentially (recommended to avoid parallel execution conflicts)
+go test -v -p 1 ./tests/...
+
+# Or run individual test suites
+cd tests/post_deploy_functional
+go test -v -timeout 30m
+```
+
+**Note**: When running `go test ./tests/...`, use the `-p 1` flag to run test packages sequentially. Both test suites use the same `examples/complete` directory, so parallel execution causes file conflicts.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
