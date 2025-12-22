@@ -2,8 +2,7 @@ terraform.*
 .repo/
 components/
 .semverbot.toml
-.tflint.hcl
-.golangci.yaml
+.terraform
 
 .idea
 !examples/*.tfvars
@@ -58,8 +57,6 @@ azure_env.sh
 .releaserc.json
 .tflint.hcl
 
-# Pre-commit hook
-.pre-commit-config.yaml
-
 # VS Code
 .vscode/
+.devcontainer

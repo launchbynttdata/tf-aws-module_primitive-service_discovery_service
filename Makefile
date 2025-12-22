@@ -18,7 +18,7 @@ LCAF_ENV_FILE = .lcafenv
 # Source repository for repo manifests
 REPO_MANIFESTS_URL ?= https://github.com/launchbynttdata/launch-common-automation-framework.git
 # Branch of source repository for repo manifests. Other tags not currently supported.
-REPO_BRANCH ?= refs/tags/1.0.0
+REPO_BRANCH ?= refs/tags/1.8.1
 # Path to seed manifest in repository referenced in REPO_MANIFESTS_URL
 REPO_MANIFEST ?= manifests/terraform_modules/seed/manifest.xml
 
@@ -130,3 +130,73 @@ init-clean:
 ifneq (,$(wildcard ./TEMPLATED_README.md))
 	mv TEMPLATED_README.md README.MD
 endif
+
+.PHONY: init-module
+init-module:
+	@echo "Initializing module from template..."
+	@REPO_URL=$$(git config --get remote.origin.url); \
+	if [ -z "$$REPO_URL" ]; then \
+		echo "Error: Could not determine git repository URL. Make sure this is a git repository with a remote origin."; \
+		exit 1; \
+	fi; \
+	echo "Repository URL: $$REPO_URL"; \
+	REPO_PATH=$$(echo $$REPO_URL | sed -E 's#(https://|git@)##' | sed -E 's#:#/#' | sed -E 's#\.git$$##'); \
+	echo "Repository Path: $$REPO_PATH"; \
+	MODULE_NAME=$$(basename $$REPO_URL .git); \
+	echo "Module Name: $$MODULE_NAME"; \
+	echo "Updating go.mod..."; \
+	sed -i.bak "s#github.com/launchbynttdata/tf-aws-module-template#$$REPO_PATH#g" go.mod && rm go.mod.bak; \
+	echo "Updating test files..."; \
+	find tests -type f -name "*.go" -exec sed -i.bak "s#github.com/launchbynttdata/tf-aws-module-template#$$REPO_PATH#g" {} \; -exec rm {}.bak \;; \
+	echo "Running go mod tidy..."; \
+	go mod tidy; \
+	echo ""; \
+	echo "Removing detect-secrets baseline..."; \
+	rm -f .secrets.baseline; \
+	echo "✅ Module initialization complete!"; \
+	echo ""; \
+	echo "Next steps:"; \
+	echo "  1. Review and update the module files (main.tf, variables.tf, outputs.tf)"; \
+	echo "  2. Update the examples in the examples/ directory"; \
+	echo "  3. Update test implementations in tests/testimpl/"; \
+	echo "  4. Run 'make configure' to set up your development environment"; \
+	echo "  5. Run 'make check' to validate your changes"
+
+.PHONY: secrets-baseline
+secrets-baseline:
+	@echo "Creating new detect-secrets baseline..."
+	detect-secrets scan > .secrets.baseline
+	@echo "✅ Secrets baseline created successfully!"
+	@echo "Review .secrets.baseline to ensure no false positives are included."
+
+## update-tool-versions: Update .tool-versions with latest versions (respects pinned versions)
+update-tool-versions:
+	@echo "Updating .tool-versions with latest versions..."
+	@if [ ! -f .tool-versions ]; then \
+		@echo "Error: .tool-versions file not found"; \
+		exit 1; \
+	fi
+	@cp .tool-versions .tool-versions.backup
+	@while IFS= read -r line; do \
+		if echo "$$line" | grep -q "#pinned"; then \
+			echo "$$line" >> .tool-versions.tmp; \
+			echo "Keeping pinned: $$line"; \
+		else \
+			tool=$$(echo "$$line" | awk '{print $$1}'); \
+			if [ -n "$$tool" ] && [ "$$tool" != "#" ]; then \
+				latest=$$(asdf latest "$$tool" 2>/dev/null || echo "unknown"); \
+				if [ "$$latest" != "unknown" ] && ! echo "$$latest" | grep -q "unable to load\|does not have\|unknown"; then \
+					echo "$$tool $$latest" >> .tool-versions.tmp; \
+					echo "Updated $$tool to $$latest"; \
+				else \
+					echo "$$line" >> .tool-versions.tmp; \
+					echo "Keeping $$line (no update available)"; \
+				fi; \
+			else \
+				echo "$$line" >> .tool-versions.tmp; \
+			fi; \
+		fi; \
+	done < .tool-versions
+	@mv .tool-versions.tmp .tool-versions
+	@echo "Updated .tool-versions successfully!"
+	@echo "Run 'asdf install' to install updated versions"
