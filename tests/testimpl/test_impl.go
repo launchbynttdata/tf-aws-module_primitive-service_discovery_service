@@ -20,7 +20,7 @@ func TestComposableComplete(t *testing.T, ctx types.TestContext) {
 func TestComposableCompleteReadonly(t *testing.T, ctx types.TestContext) {
 	client := GetAWSServiceDiscoveryClient(t)
 	opts := ctx.TerratestTerraformOptions()
-	serviceID := terraform.Output(t, opts, "service_id")
+	serviceID := terraform.OutputContext(t, context.Background(), opts, "service_id")
 
 	t.Run("TestServiceDiscoveryServiceExists", func(t *testing.T) {
 		out, err := client.GetService(context.TODO(), &servicediscovery.GetServiceInput{
